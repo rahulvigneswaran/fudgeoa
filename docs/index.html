@@ -396,6 +396,7 @@
       animation: blink 1s step-end infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .spinner-char { color: var(--red); display: inline-block; min-width: 14px; }
 
     /* ── Commands reference ── */
     #commands {
@@ -781,6 +782,37 @@
 
   <div class="divider"></div>
 
+  <!-- ──────────────────── LIMITATIONS ──────────────────── -->
+  <section id="limitations" style="padding: 120px 8vw; background: var(--bg);">
+    <div class="section-header">
+      <span class="section-num">⚠</span>
+      <h2 class="section-title">When it fails</h2>
+    </div>
+    <p style="font-size:15px;font-weight:300;color:var(--grey-light);max-width:560px;line-height:1.75;margin-bottom:64px;">
+      This tool does one thing: replaces clipboard content. That means any portal that blocks or intercepts paste will break the flow. Know the gaps before you rely on it.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:2px;" class="limits-grid">
+      <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid var(--red-dim);">
+        <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--red);margin-bottom:16px;">Paste blocked</div>
+        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">Some OA portals — particularly custom code editors on platforms like HackerRank, Codility, and a few proprietary systems — disable <code style="font-family:var(--mono);color:var(--white);font-size:12px">Cmd+V</code> inside the editor. The answer is in your clipboard but you can't get it in. This tool cannot work around that.</p>
+      </div>
+      <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid #2a2a2a;">
+        <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey-light);margin-bottom:16px;">Browser sandbox</div>
+        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">A small number of portals intercept clipboard events at the browser level and replace your paste content with the original prompt. If the portal is actively hostile, clipboard manipulation is not a winning strategy.</p>
+      </div>
+      <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid #2a2a2a;">
+        <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey-light);margin-bottom:16px;">macOS only</div>
+        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">The compiled binary targets macOS arm64 (Apple Silicon). Intel Macs and Windows/Linux users need to run from source. Cross-platform builds are not yet distributed.</p>
+      </div>
+      <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid #2a2a2a;">
+        <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey-light);margin-bottom:16px;">Network latency</div>
+        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">Gemini round-trips add 1–4 seconds. On timed-per-question OAs, this could eat into your budget. Use <code style="font-family:var(--mono);color:var(--white);font-size:12px">??MODEL_1??</code> (Flash) for speed over depth.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
   <!-- ──────────────────── DOWNLOAD ──────────────────── -->
   <section id="download">
     <p class="download-eyebrow">// macOS · Apple Silicon</p>
@@ -1027,44 +1059,103 @@
 
     // ── Terminal typewriter demo ──
     const tb = document.getElementById('terminal-body');
-    const lines = [
-      { delay: 0,    html: '<span class="dim">// watching clipboard...</span>' },
-      { delay: 1200, html: '<span class="prompt">CLIPBOARD ↓</span>' },
-      { delay: 1400, html: '<span class="trigger">?? Write a binary search in Python</span>' },
-      { delay: 2200, html: '<span class="dim">// trigger detected · sending to Gemini...</span>' },
-      { delay: 3400, html: '<span class="prompt">CLIPBOARD ↑</span>' },
-      { delay: 3600, html: '<span class="response">def binary_search(arr, target):</span>' },
-      { delay: 3700, html: '<span class="response">    lo, hi = 0, len(arr) - 1</span>' },
-      { delay: 3800, html: '<span class="response">    while lo &lt;= hi:</span>' },
-      { delay: 3900, html: '<span class="response">        mid = (lo + hi) // 2</span>' },
-      { delay: 4000, html: '<span class="response">        if arr[mid] == target: return mid</span>' },
-      { delay: 4100, html: '<span class="response">        elif arr[mid] &lt; target: lo = mid + 1</span>' },
-      { delay: 4200, html: '<span class="response">        else: hi = mid - 1</span>' },
-      { delay: 4300, html: '<span class="response">    return -1</span>' },
-      { delay: 4700, html: '<span class="dim">// ready · paste anywhere</span>' },
-    ];
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function typeWriter(el, text, speed = 42) {
+      for (const ch of text) {
+        el.textContent += ch;
+        await sleep(speed + Math.random() * 24);
+        tb.scrollTop = tb.scrollHeight;
+      }
+    }
+
+    function addLine(cls = '') {
+      const d = document.createElement('div');
+      d.className = 't-line' + (cls ? ' ' + cls : '');
+      tb.appendChild(d);
+      gsap.from(d, { opacity: 0, y: 4, duration: 0.22, ease: 'power2.out' });
+      tb.scrollTop = tb.scrollHeight;
+      return d;
+    }
+
+    async function runDemo() {
+      tb.innerHTML = '';
+
+      // idle state
+      addLine().innerHTML = '<span class="dim">// watching clipboard...</span>';
+      await sleep(900);
+
+      // user types trigger into clipboard
+      const inputLine = addLine();
+      const inputSpan = document.createElement('span');
+      inputSpan.className = 'trigger';
+      inputLine.appendChild(inputSpan);
+      await typeWriter(inputSpan, '?? Write a binary search in Python');
+      await sleep(260);
+
+      // detected
+      addLine().innerHTML = '<span class="prompt">CLIPBOARD ↓</span>';
+      await sleep(180);
+
+      // spinner while querying
+      const spinLine = addLine();
+      const spinEl = document.createElement('span');
+      spinEl.className = 'spinner-char';
+      const spinText = document.createElement('span');
+      spinText.className = 'dim';
+      spinText.textContent = ' querying Gemini 2.5 Flash...';
+      spinLine.append(spinEl, spinText);
+      const frames = ['⠋','⠙','⠸','⠴','⠦','⠇'];
+      let fi = 0;
+      const spinTimer = setInterval(() => { spinEl.textContent = frames[fi++ % frames.length]; }, 80);
+      await sleep(1900);
+      clearInterval(spinTimer);
+      spinLine.innerHTML = '<span class="dim">// response received ✓</span>';
+      await sleep(180);
+
+      // response arrives
+      addLine().innerHTML = '<span class="prompt">CLIPBOARD ↑</span>';
+      await sleep(160);
+
+      const codeLines = [
+        'def binary_search(arr, target):',
+        '    lo, hi = 0, len(arr) - 1',
+        '    while lo <= hi:',
+        '        mid = (lo + hi) // 2',
+        '        if arr[mid] == target: return mid',
+        '        elif arr[mid] < target: lo = mid + 1',
+        '        else: hi = mid - 1',
+        '    return -1',
+      ];
+      for (const line of codeLines) {
+        const rl = addLine();
+        const rs = document.createElement('span');
+        rs.className = 'response';
+        rl.appendChild(rs);
+        await typeWriter(rs, line, 16);
+        await sleep(22);
+      }
+
+      await sleep(360);
+      addLine().innerHTML = '<span class="dim">// ready · paste anywhere ✓</span>';
+
+      // pause then loop
+      await sleep(3200);
+      await new Promise(res => {
+        gsap.to(Array.from(tb.children), {
+          opacity: 0, stagger: 0.04, duration: 0.28,
+          onComplete: res
+        });
+      });
+      runDemo();
+    }
 
     let demoStarted = false;
     ScrollTrigger.create({
       trigger: '#terminal',
-      start: 'top 70%',
-      onEnter: () => {
-        if (demoStarted) return;
-        demoStarted = true;
-        tb.innerHTML = '';
-        lines.forEach(({ delay, html }) => {
-          setTimeout(() => {
-            const d = document.createElement('div');
-            d.className = 't-line';
-            d.innerHTML = html;
-            d.style.opacity = '0';
-            d.style.transform = 'translateY(4px)';
-            tb.appendChild(d);
-            gsap.to(d, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
-            tb.scrollTop = tb.scrollHeight;
-          }, delay);
-        });
-      }
+      start: 'top 72%',
+      onEnter: () => { if (!demoStarted) { demoStarted = true; runDemo(); } }
     });
 
     // ── Tabs ──
