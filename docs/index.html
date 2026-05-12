@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FudgeOA — Break the Filter</title>
+  <title>FudgeOA: Break the Filter</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -869,7 +869,7 @@
 
     <p class="hero-sub">
       Online Assessments reduce human intelligence to a binary pass/fail.
-      Companies have the talent and money to do better. Until they do —
+      Companies have the talent and money to do better. Until they do,
       this tool exists.
     </p>
 
@@ -952,7 +952,7 @@
           <div class="copy-badge">?? prefix + Cmd+C</div>
         </div>
         <h3 class="step-title">Copy the question</h3>
-        <p class="step-desc">Highlight any text from the OA portal. Prefix it with <code style="font-family:var(--mono);color:var(--red);font-size:11px">??</code> and copy to clipboard. That's your trigger.</p>
+        <p class="step-desc">Copy any text from the OA portal. Add <code style="font-family:var(--mono);color:var(--red);font-size:11px">??</code> at the start. That's your trigger.</p>
       </div>
 
       <div class="step">
@@ -966,7 +966,7 @@
           <div class="stealth-tag">com.apple.security.pboxd</div>
         </div>
         <h3 class="step-title">Agent intercepts</h3>
-        <p class="step-desc">Background process detects the <code style="font-family:var(--mono);color:var(--red);font-size:11px">??</code> prefix instantly. Sends your prompt to Gemini 3.1, masked as an Apple system service.</p>
+        <p class="step-desc">Background process catches the <code style="font-family:var(--mono);color:var(--red);font-size:11px">??</code> prefix and fires off your prompt to Gemini 3.1. Runs disguised as an Apple system process.</p>
       </div>
 
       <div class="step">
@@ -984,7 +984,7 @@
           </div>
         </div>
         <h3 class="step-title">Answer in clipboard</h3>
-        <p class="step-desc">Within seconds the AI response replaces your clipboard. Paste it anywhere. Zero UI, zero visible windows. Nobody knows it's running.</p>
+        <p class="step-desc">Answer lands in your clipboard in a few seconds. Paste it anywhere. No window, no dock icon, nothing visible.</p>
       </div>
     </div>
   </section>
@@ -996,7 +996,7 @@
     <div class="demo-inner">
       <div class="demo-text">
         <h2>Clipboard<br/>is your<br/><span style="color:var(--red)">interface</span></h2>
-        <p>No window. No shortcut to memorise. No suspicious app switching. Just copy and paste — the most natural actions in computing.</p>
+        <p>No window. No shortcut to memorise. No suspicious app switching. Just copy and paste.</p>
         <div class="cmd-list">
           <div class="cmd-item"><code>?? question</code><span>New answer, no context</span></div>
           <div class="cmd-item"><code>??NEW?? q</code><span>Explicitly fresh conversation</span></div>
@@ -1029,23 +1029,23 @@
     <div class="commands-grid">
       <div class="cmd-card">
         <div class="cmd-card-trigger">?? &lt;question&gt;</div>
-        <div class="cmd-card-desc">Default trigger. Clears conversation history and sends a fresh prompt to the model. Use for standalone questions.</div>
+        <div class="cmd-card-desc">Default trigger. Clears history, sends a fresh prompt. Use for one-off questions.</div>
       </div>
       <div class="cmd-card">
         <div class="cmd-card-trigger">??NEW?? &lt;question&gt;</div>
-        <div class="cmd-card-desc">Explicitly starts a new conversation. Identical to the default trigger — use when clarity matters.</div>
+        <div class="cmd-card-desc">Same as default but explicit. Use when you want to be sure history is cleared.</div>
       </div>
       <div class="cmd-card">
         <div class="cmd-card-trigger">??FOLLOW?? &lt;question&gt;</div>
-        <div class="cmd-card-desc">Continues the previous conversation. Full message history is preserved. Perfect for multi-part problems or iterating on a solution.</div>
+        <div class="cmd-card-desc">Continues the previous conversation with full history. Good for multi-part problems or following up on code.</div>
       </div>
       <div class="cmd-card">
         <div class="cmd-card-trigger">??MODEL_1??</div>
-        <div class="cmd-card-desc">Switch to Gemini 3.1 Flash Lite — faster responses, lower latency. Great for quick lookups and syntax questions.</div>
+        <div class="cmd-card-desc">Switch to Gemini 3.1 Flash Lite. Faster, lower latency. Good for quick lookups and syntax questions.</div>
       </div>
       <div class="cmd-card" style="grid-column: span 1;">
         <div class="cmd-card-trigger">??MODEL_2??</div>
-        <div class="cmd-card-desc">Switch to Gemini 3.1 Pro Preview — deeper reasoning, more thorough solutions. Use for complex algorithmic problems.</div>
+        <div class="cmd-card-desc">Switch to Gemini 3.1 Pro Preview. Slower but smarter. Use for hard algorithmic problems.</div>
       </div>
     </div>
   </section>
@@ -1059,20 +1059,20 @@
       <h2 class="section-title">When it fails</h2>
     </div>
     <p style="font-size:15px;font-weight:300;color:var(--grey-light);max-width:560px;line-height:1.75;margin-bottom:64px;">
-      This tool does one thing: replaces clipboard content. That means any portal that blocks or intercepts paste will break the flow. Know the gaps before you rely on it.
+      This tool does one thing: replaces clipboard content. Any portal that blocks paste breaks it. Know the gaps.
     </p>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:2px;" class="limits-grid">
       <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid var(--red-dim);">
         <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--red);margin-bottom:16px;">Paste blocked</div>
-        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">Some OA portals — particularly custom code editors on platforms like HackerRank, Codility, and a few proprietary systems — disable <code style="font-family:var(--mono);color:var(--white);font-size:12px">Cmd+V</code> inside the editor. The answer is in your clipboard but you can't get it in. This tool cannot work around that.</p>
+        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">Some portals (HackerRank, Codility, and others) disable <code style="font-family:var(--mono);color:var(--white);font-size:12px">Cmd+V</code> inside the code editor. Answer lands in clipboard but you can't get it in. Nothing to be done about that.</p>
       </div>
       <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid #2a2a2a;">
         <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey-light);margin-bottom:16px;">Browser sandbox</div>
-        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">A small number of portals intercept clipboard events at the browser level and replace your paste content with the original prompt. If the portal is actively hostile, clipboard manipulation is not a winning strategy.</p>
+        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">A few portals intercept clipboard events in the browser and overwrite your paste with the original text. If the portal is fighting back, this tool won't win.</p>
       </div>
       <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid #2a2a2a;">
         <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey-light);margin-bottom:16px;">macOS only</div>
-        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">The compiled binary targets macOS arm64 (Apple Silicon). Intel Macs and Windows/Linux users need to run from source. Cross-platform builds are not yet distributed.</p>
+        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">Binary is macOS arm64 only (Apple Silicon). Intel Macs and Windows/Linux users run from source. No cross-platform build yet.</p>
       </div>
       <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid #2a2a2a;">
         <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey-light);margin-bottom:16px;">Network latency</div>

@@ -1,6 +1,6 @@
 # FudgeOA
 
-> *A voice of rebellion. Online Assessments reduce intelligence to a binary pass/fail. Companies have the talent and resources to do better. Until they do — this tool exists.*
+> *Online Assessments reduce intelligence to a binary pass/fail. Companies have the talent and resources to do better. Until they do, this tool exists.*
 
 Clipboard-based LLM agent for macOS. Runs invisibly in the background. Copy a `??`-prefixed question → answer appears in your clipboard within seconds.
 
@@ -116,10 +116,10 @@ fudgeoa/
 
 ## Limitations
 
-- **Paste blocked** — some portals (HackerRank, Codility custom editors) disable `Cmd+V` inside the code editor. Answer lands in clipboard but can't get in.
-- **Browser clipboard interception** — a small number of portals overwrite paste content at the JS level.
-- **macOS arm64 only** — compiled binary targets Apple Silicon. Intel/Windows/Linux must run from source.
-- **Network latency** — Gemini adds 1–4 seconds. On timed-per-question OAs, use `??MODEL_1??` (Flash) for speed.
+- **Paste blocked**: some portals (HackerRank, Codility custom editors) disable `Cmd+V` inside the code editor. Answer lands in clipboard but can't get in.
+- **Browser clipboard interception**: a few portals overwrite paste content at the JS level. If the portal fights back, this tool won't win.
+- **macOS arm64 only**: binary targets Apple Silicon. Intel/Windows/Linux must run from source.
+- **Network latency**: Gemini adds 1-4 seconds. On timed-per-question OAs, use `??MODEL_1??` (Flash Lite) for speed.
 
 ---
 
