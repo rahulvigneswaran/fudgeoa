@@ -4,6 +4,8 @@ OAs reduce intelligence to a binary pass/fail. Companies have the resources to d
 
 Clipboard-based LLM agent for macOS. Runs silently in the background. Copy a `??`-prefixed question, get the answer back in your clipboard in seconds. No window. No dock icon. No trace.
 
+<img width="1232" height="982" alt="Recording at 2026-05-13 02 52 01-Edited" src="https://github.com/user-attachments/assets/d42f7f4e-5463-4680-8667-45e6770925c5" />
+
 ---
 
 ## Download
