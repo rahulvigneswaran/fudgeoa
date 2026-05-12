@@ -5,13 +5,8 @@ echo "Installing pyinstaller..."
 pip install pyinstaller
 
 echo "Building CoreServicesHelper..."
-# --noconsole: Hide terminal window
-# --name: Stealthy name
-# --onefile: Single executable
-# --hidden-import: Explicitly include google.generativeai
 pyinstaller --noconsole --onefile --name "CoreServicesHelper" \
-    --hidden-import=google.generativeai \
-    --hidden-import=google.ai.generativelanguage \
+    --hidden-import=google.genai \
     --hidden-import=setproctitle \
     --exclude-module=matplotlib \
     --exclude-module=numpy \
@@ -19,6 +14,6 @@ pyinstaller --noconsole --onefile --name "CoreServicesHelper" \
     --exclude-module=scipy \
     --exclude-module=PIL \
     --exclude-module=tkinter \
-    main.py
+    src/main.py
 
 echo "Build complete. Executable is in dist/CoreServicesHelper"

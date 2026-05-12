@@ -1,5 +1,10 @@
-# Secrets
+# Secrets — NEVER commit
 .env
+*.key
+*.pem
+
+# Claude Code internal
+.claude/
 
 # Python
 __pycache__/
@@ -8,16 +13,15 @@ __pycache__/
 *.pyd
 .Python
 *.egg-info/
-dist/build/
 
-# Build artifacts
+# Build artifacts (intermediate)
 build/
-*.spec
+dist/build/
 
 # macOS
 .DS_Store
 .AppleDouble
 .LSOverride
 
-# PyInstaller dist (large binaries — publish via GitHub Releases instead)
+# PyInstaller dist — publish binaries via GitHub Releases, not git
 dist/
