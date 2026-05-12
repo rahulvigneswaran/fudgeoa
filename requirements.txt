@@ -1,0 +1,4 @@
+pyperclip
+google-genai
+python-dotenv
+setproctitle

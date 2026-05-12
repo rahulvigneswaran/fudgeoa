@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FudgeOA — Break the Filter</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
+
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --bg2: #0f0f0f;
+      --red: #e8132a;
+      --red-dim: #7a0a16;
+      --white: #f2f0ed;
+      --grey: #5a5a5a;
+      --grey-light: #888;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --display: 'Bebas Neue', sans-serif;
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom cursor ── */
+    #cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: var(--red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+      mix-blend-mode: normal;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(232,19,42,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+    body:has(a:hover) #cursor,
+    body:has(button:hover) #cursor { width: 20px; height: 20px; background: var(--white); }
+    body:has(a:hover) #cursor-ring,
+    body:has(button:hover) #cursor-ring { width: 60px; height: 60px; }
+
+    /* ── Canvas bg ── */
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      mix-blend-mode: difference;
+    }
+    .nav-logo {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 1; }
+
+    /* ── Sections base ── */
+    section { position: relative; }
+
+    /* ── Hero ── */
+    #hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 8vw;
+      overflow: hidden;
+    }
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 24px;
+      opacity: 0;
+    }
+    .hero-title {
+      font-family: var(--display);
+      font-size: clamp(80px, 14vw, 200px);
+      line-height: 0.92;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      position: relative;
+      z-index: 1;
+    }
+    .hero-title .line { overflow: hidden; display: block; }
+    .hero-title .word { display: inline-block; transform: translateY(110%); }
+    .hero-title .accent { color: var(--red); }
+
+    .hero-sub {
+      margin-top: 40px;
+      max-width: 480px;
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.65;
+      color: rgba(242,240,237,0.6);
+      opacity: 0;
+      z-index: 1;
+      position: relative;
+    }
+    .hero-cta {
+      margin-top: 48px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      opacity: 0;
+      z-index: 1;
+      position: relative;
+    }
+    .btn-primary {
+      background: var(--red);
+      color: var(--white);
+      border: none;
+      padding: 16px 36px;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { background: #ff1a33; transform: translateY(-2px); }
+    .btn-ghost {
+      color: var(--white);
+      border: 1px solid rgba(242,240,237,0.2);
+      padding: 15px 36px;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      text-decoration: none;
+      display: inline-block;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--red); transform: translateY(-2px); }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 8vw;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--grey);
+      opacity: 0;
+    }
+    .scroll-line {
+      width: 48px;
+      height: 1px;
+      background: var(--grey);
+      transform-origin: left;
+    }
+
+    /* ── Manifesto ── */
+    #manifesto {
+      padding: 140px 8vw;
+      background: var(--bg);
+    }
+    .manifesto-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 64px;
+    }
+    .manifesto-lines { max-width: 900px; }
+    .m-line {
+      font-size: clamp(24px, 3.5vw, 48px);
+      font-weight: 300;
+      line-height: 1.3;
+      color: var(--grey);
+      transition: color 0.4s;
+      padding: 8px 0;
+    }
+    .m-line.active { color: var(--white); }
+    .m-line em { font-style: italic; color: var(--red); font-weight: 300; }
+
+    /* ── How it works ── */
+    #how {
+      padding: 120px 8vw;
+      background: var(--bg2);
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .section-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--red);
+      letter-spacing: 0.15em;
+    }
+    .section-title {
+      font-family: var(--display);
+      font-size: clamp(40px, 6vw, 80px);
+      letter-spacing: 0.02em;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .step {
+      background: var(--bg);
+      padding: 48px 40px;
+      border-top: 1px solid #1a1a1a;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    .step-num {
+      font-family: var(--display);
+      font-size: 64px;
+      color: #1a1a1a;
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+    .step-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: var(--white);
+    }
+    .step-desc {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--grey-light);
+    }
+
+    /* ── Terminal demo ── */
+    #demo {
+      padding: 120px 8vw;
+      background: var(--bg);
+    }
+    .demo-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .demo-text h2 {
+      font-family: var(--display);
+      font-size: clamp(40px, 5vw, 68px);
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+    .demo-text p {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--grey-light);
+      max-width: 400px;
+    }
+    .demo-text .cmd-list {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cmd-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .cmd-item code {
+      color: var(--red);
+      background: rgba(232,19,42,0.1);
+      padding: 4px 10px;
+      border-radius: 2px;
+      font-size: 12px;
+    }
+    .cmd-item span { color: var(--grey-light); }
+
+    .terminal {
+      background: #0d0d0d;
+      border: 1px solid #1f1f1f;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    }
+    .terminal-bar {
+      background: #161616;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #1f1f1f;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.red { background: #ff5f57; }
+    .dot.yellow { background: #febc2e; }
+    .dot.green { background: #28c840; }
+    .terminal-title {
+      margin-left: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--grey);
+      letter-spacing: 0.1em;
+    }
+    .terminal-body { padding: 24px; min-height: 240px; }
+    .t-line {
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.8;
+      color: #888;
+    }
+    .t-line .prompt { color: var(--red); }
+    .t-line .trigger { color: #e8c662; }
+    .t-line .response { color: #7ec8a0; }
+    .t-line .dim { color: #3a3a3a; }
+    .cursor-blink {
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background: var(--white);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── Commands reference ── */
+    #commands {
+      padding: 120px 8vw;
+      background: var(--bg2);
+    }
+    .commands-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+      margin-top: 64px;
+    }
+    .cmd-card {
+      background: var(--bg);
+      padding: 36px 40px;
+      border-left: 2px solid transparent;
+      transition: border-color 0.2s;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .cmd-card:hover { border-left-color: var(--red); }
+    .cmd-card-trigger {
+      font-family: var(--mono);
+      font-size: 15px;
+      color: var(--red);
+      margin-bottom: 12px;
+    }
+    .cmd-card-desc {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--grey-light);
+      line-height: 1.6;
+    }
+
+    /* ── Download ── */
+    #download {
+      padding: 160px 8vw;
+      background: var(--bg);
+      text-align: center;
+    }
+    .download-eyebrow {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 32px;
+    }
+    .download-title {
+      font-family: var(--display);
+      font-size: clamp(60px, 10vw, 140px);
+      line-height: 0.9;
+      color: var(--white);
+      margin-bottom: 40px;
+    }
+    .download-meta {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 56px;
+    }
+    .meta-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--grey-light);
+      border: 1px solid #1f1f1f;
+      padding: 8px 16px;
+      border-radius: 100px;
+    }
+    .meta-badge span { color: var(--white); }
+    .download-btn-wrap { margin-bottom: 24px; }
+    .btn-download {
+      background: var(--red);
+      color: var(--white);
+      border: none;
+      padding: 20px 56px;
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: none;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 0 0 rgba(232,19,42,0.4);
+    }
+    .btn-download:hover {
+      background: #ff1a33;
+      transform: translateY(-3px);
+      box-shadow: 0 20px 60px rgba(232,19,42,0.3);
+    }
+    .download-note {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--grey);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Instructions ── */
+    #instructions {
+      padding: 120px 8vw;
+      background: var(--bg2);
+    }
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .tab {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--grey);
+      padding: 16px 32px;
+      cursor: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .tab.active { color: var(--white); border-bottom-color: var(--red); }
+    .tab-pane { display: none; padding: 48px 0; }
+    .tab-pane.active { display: block; }
+    .code-block {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .code-block pre {
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--white);
+      white-space: pre-wrap;
+    }
+    .code-block .comment { color: var(--grey); }
+    .code-block .cmd { color: #7ec8a0; }
+    .code-block .flag { color: #e8c662; }
+    .code-block .value { color: var(--red); }
+    .code-block .copy-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      color: var(--grey-light);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      padding: 6px 12px;
+      cursor: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .copy-btn:hover { background: #222; color: var(--white); }
+    .instruction-note {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--grey-light);
+      line-height: 1.7;
+      margin-top: 8px;
+    }
+    .instruction-note a {
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(232,19,42,0.3);
+    }
+    .instruction-note a:hover { border-bottom-color: var(--red); }
+
+    /* ── Footer ── */
+    footer {
+      padding: 64px 8vw;
+      background: var(--bg);
+      border-top: 1px solid #111;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-logo {
+      font-family: var(--display);
+      font-size: 20px;
+      letter-spacing: 0.05em;
+      color: var(--white);
+    }
+    .footer-copy {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--grey);
+      letter-spacing: 0.08em;
+    }
+    .footer-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--grey);
+      letter-spacing: 0.08em;
+    }
+    .footer-tag span { color: var(--red); }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 9990;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--red-dim), transparent);
+      opacity: 0.4;
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 20px 24px; }
+      #hero { padding: 0 24px; }
+      #manifesto, #how, #demo, #commands, #download, #instructions { padding-left: 24px; padding-right: 24px; }
+      .steps { grid-template-columns: 1fr; }
+      .demo-inner { grid-template-columns: 1fr; gap: 48px; }
+      .commands-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="#" class="nav-logo">FudgeOA</a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#download">Download</a></li>
+      <li><a href="#instructions">Instructions</a></li>
+    </ul>
+  </nav>
+
+  <!-- ──────────────────── HERO ──────────────────── -->
+  <section id="hero">
+    <canvas id="hero-canvas"></canvas>
+
+    <p class="hero-eyebrow">A rebellion against lazy hiring</p>
+
+    <h1 class="hero-title">
+      <span class="line"><span class="word">FUDGE</span></span>
+      <span class="line"><span class="word">THE&nbsp;</span><span class="word accent">OA</span></span>
+    </h1>
+
+    <p class="hero-sub">
+      Online Assessments reduce human intelligence to a binary pass/fail.
+      Companies have the talent and money to do better. Until they do —
+      this tool exists.
+    </p>
+
+    <div class="hero-cta">
+      <a href="#download" class="btn-primary">Download</a>
+      <a href="#how" class="btn-ghost">See how it works</a>
+    </div>
+
+    <div class="hero-scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ──────────────────── MANIFESTO ──────────────────── -->
+  <section id="manifesto">
+    <p class="manifesto-label">// manifesto</p>
+    <div class="manifesto-lines">
+      <p class="m-line">Interviews reveal <em>how you think</em>.</p>
+      <p class="m-line">OAs only reveal <em>if you passed</em>.</p>
+      <p class="m-line">One rewards curiosity and depth.</p>
+      <p class="m-line">The other rewards memorisation and luck.</p>
+      <p class="m-line">The stakes are not equal.</p>
+      <p class="m-line">The difficulty is not equal.</p>
+      <p class="m-line">The information gained is not equal.</p>
+      <p class="m-line">Companies have no excuse.</p>
+      <p class="m-line"><em>This tool is the consequence</em>.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ──────────────────── HOW IT WORKS ──────────────────── -->
+  <section id="how">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">How it works</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3 class="step-title">Copy the question</h3>
+        <p class="step-desc">Highlight any text from the OA portal. Prefix it with <code style="font-family:var(--mono);color:var(--red)">??</code> and copy it to your clipboard. That's your trigger.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3 class="step-title">Agent intercepts</h3>
+        <p class="step-desc">The background process detects the trigger prefix instantly. It sends your prompt to Gemini — the most capable model, running silently under a disguised process name.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3 class="step-title">Answer in clipboard</h3>
+        <p class="step-desc">Within seconds the AI response replaces your clipboard content. Paste it anywhere. Zero UI. Zero visible windows. Nobody knows it's running.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ──────────────────── DEMO ──────────────────── -->
+  <section id="demo">
+    <div class="demo-inner">
+      <div class="demo-text">
+        <h2>Clipboard<br/>is your<br/><span style="color:var(--red)">interface</span></h2>
+        <p>No window. No shortcut to memorise. No suspicious app switching. Just copy and paste — the most natural actions in computing.</p>
+        <div class="cmd-list">
+          <div class="cmd-item"><code>?? question</code><span>New answer, no context</span></div>
+          <div class="cmd-item"><code>??NEW?? q</code><span>Explicitly fresh conversation</span></div>
+          <div class="cmd-item"><code>??FOLLOW?? q</code><span>Continue with full history</span></div>
+          <div class="cmd-item"><code>??MODEL_2??</code><span>Upgrade to Gemini Pro</span></div>
+        </div>
+      </div>
+      <div class="terminal" id="terminal">
+        <div class="terminal-bar">
+          <div class="dot red"></div>
+          <div class="dot yellow"></div>
+          <div class="dot green"></div>
+          <span class="terminal-title">clipboard · live</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <div class="t-line"><span class="dim">// watching clipboard...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ──────────────────── COMMANDS ──────────────────── -->
+  <section id="commands">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Command reference</h2>
+    </div>
+    <div class="commands-grid">
+      <div class="cmd-card">
+        <div class="cmd-card-trigger">?? &lt;question&gt;</div>
+        <div class="cmd-card-desc">Default trigger. Clears conversation history and sends a fresh prompt to the model. Use for standalone questions.</div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-card-trigger">??NEW?? &lt;question&gt;</div>
+        <div class="cmd-card-desc">Explicitly starts a new conversation. Identical to the default trigger — use when clarity matters.</div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-card-trigger">??FOLLOW?? &lt;question&gt;</div>
+        <div class="cmd-card-desc">Continues the previous conversation. Full message history is preserved. Perfect for multi-part problems or iterating on a solution.</div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-card-trigger">??MODEL_1??</div>
+        <div class="cmd-card-desc">Switch to Gemini 2.5 Flash — faster responses, lower latency. Great for quick lookups and syntax questions.</div>
+      </div>
+      <div class="cmd-card" style="grid-column: span 1;">
+        <div class="cmd-card-trigger">??MODEL_2??</div>
+        <div class="cmd-card-desc">Switch to Gemini 2.5 Pro — deeper reasoning, more thorough solutions. Use for complex algorithmic problems.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ──────────────────── DOWNLOAD ──────────────────── -->
+  <section id="download">
+    <p class="download-eyebrow">// macOS · Apple Silicon</p>
+    <h2 class="download-title">Get<br/>the tool</h2>
+    <div class="download-meta">
+      <div class="meta-badge">Platform <span>macOS arm64</span></div>
+      <div class="meta-badge">Runtime <span>Standalone</span></div>
+      <div class="meta-badge">Visibility <span>Zero UI</span></div>
+    </div>
+    <div class="download-btn-wrap">
+      <a href="https://github.com/rahulvigneswaran/fudgeoa/releases/latest/download/CoreServicesHelper" download class="btn-download">Download CoreServicesHelper</a>
+    </div>
+    <p class="download-note">~36 MB · No installation required · macOS 12+</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ──────────────────── INSTRUCTIONS ──────────────────── -->
+  <section id="instructions">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Instructions</h2>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="run">Run</button>
+      <button class="tab" data-tab="kill">Kill</button>
+      <button class="tab" data-tab="setup">API Key</button>
+      <button class="tab" data-tab="source">From source</button>
+    </div>
+
+    <!-- Run -->
+    <div class="tab-pane active" id="tab-run">
+      <div class="code-block">
+        <button class="copy-btn" data-copy="chmod +x CoreServicesHelper&#10;./CoreServicesHelper --api-key YOUR_GEMINI_KEY">Copy</button>
+        <pre><span class="comment"># Make executable (first time only)</span>
+<span class="cmd">chmod</span> +x CoreServicesHelper
+
+<span class="comment"># Start the agent</span>
+<span class="cmd">./CoreServicesHelper</span> <span class="flag">--api-key</span> <span class="value">YOUR_GEMINI_KEY</span></pre>
+      </div>
+      <p class="instruction-note">
+        The process will run silently. No window opens. To get a free API key, visit
+        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
+      </p>
+    </div>
+
+    <!-- Kill -->
+    <div class="tab-pane" id="tab-kill">
+      <div class="code-block">
+        <button class="copy-btn" data-copy="pkill -f CoreServicesHelper">Copy</button>
+        <pre><span class="comment"># Stop the agent</span>
+<span class="cmd">pkill</span> <span class="flag">-f</span> <span class="value">CoreServicesHelper</span></pre>
+      </div>
+      <div class="code-block">
+        <button class="copy-btn" data-copy="pkill -f 'com.apple.security.pboxd'">Copy</button>
+        <pre><span class="comment"># Alternative — kill by masked process name</span>
+<span class="cmd">pkill</span> <span class="flag">-f</span> <span class="value">'com.apple.security.pboxd'</span></pre>
+      </div>
+      <p class="instruction-note">
+        The agent masks itself as <code style="font-family:var(--mono);color:var(--red);font-size:12px">com.apple.security.pboxd</code> in process lists. Either command above will terminate it.
+      </p>
+    </div>
+
+    <!-- API Key -->
+    <div class="tab-pane" id="tab-setup">
+      <div class="code-block">
+        <pre><span class="comment"># Option 1 — pass directly at runtime (recommended)</span>
+<span class="cmd">./CoreServicesHelper</span> <span class="flag">--api-key</span> <span class="value">AIzaSy...</span>
+
+<span class="comment"># Option 2 — set env var in your shell profile</span>
+<span class="cmd">export</span> <span class="value">GEMINI_API_KEY</span>=<span class="value">AIzaSy...</span>
+<span class="cmd">./CoreServicesHelper</span>
+
+<span class="comment"># Option 3 — .env file at ~/.clipboard_agent/.env</span>
+<span class="cmd">mkdir</span> -p ~/.clipboard_agent
+<span class="cmd">echo</span> <span class="value">"GEMINI_API_KEY=AIzaSy..."</span> &gt; ~/.clipboard_agent/.env
+<span class="cmd">./CoreServicesHelper</span></pre>
+      </div>
+      <p class="instruction-note">
+        Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.
+        The free tier is generous enough for OA usage.
+      </p>
+    </div>
+
+    <!-- Source -->
+    <div class="tab-pane" id="tab-source">
+      <div class="code-block">
+        <pre><span class="comment"># Clone and install deps</span>
+<span class="cmd">pip</span> install pyperclip google-genai python-dotenv setproctitle
+
+<span class="comment"># Run directly</span>
+<span class="cmd">python3</span> main.py <span class="flag">--api-key</span> <span class="value">YOUR_GEMINI_KEY</span>
+
+<span class="comment"># Or build a standalone binary</span>
+<span class="cmd">pip</span> install pyinstaller
+<span class="cmd">bash</span> build_stealth.sh</pre>
+      </div>
+      <p class="instruction-note">
+        Requires Python 3.11+ and macOS. The build script produces a single-file executable in <code style="font-family:var(--mono);color:var(--red);font-size:12px">dist/CoreServicesHelper</code>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ──────────────────── FOOTER ──────────────────── -->
+  <footer>
+    <div class="footer-logo">FudgeOA</div>
+    <p class="footer-copy">Clipboard agent · macOS arm64 · Gemini-powered</p>
+    <p class="footer-tag">Built with <span>rebellion</span></p>
+  </footer>
+
+  <script>
+    // ── Lenis smooth scroll ──
+    const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+    function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    // ── Cursor ──
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    gsap.set(cursor, { x: 0, y: 0 });
+    gsap.set(ring, { x: 0, y: 0 });
+    function animateCursor() {
+      gsap.set(cursor, { x: mx, y: my });
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      gsap.set(ring, { x: rx, y: ry });
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // ── Three.js particle field ──
+    (function() {
+      const canvas = document.getElementById('hero-canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+      camera.position.z = 80;
+
+      const COUNT = 1200;
+      const positions = new Float32Array(COUNT * 3);
+      const sizes = new Float32Array(COUNT);
+      for (let i = 0; i < COUNT; i++) {
+        positions[i * 3]     = (Math.random() - 0.5) * 200;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+        sizes[i] = Math.random() * 1.5 + 0.3;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      const mat = new THREE.PointsMaterial({
+        color: 0xe8132a,
+        sizeAttenuation: true,
+        size: 0.5,
+        transparent: true,
+        opacity: 0.5,
+      });
+      const points = new THREE.Points(geo, mat);
+      scene.add(points);
+
+      let mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', e => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = -(e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      function resize() {
+        const w = canvas.parentElement.offsetWidth;
+        const h = canvas.parentElement.offsetHeight;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      let t = 0;
+      function render() {
+        requestAnimationFrame(render);
+        t += 0.0005;
+        points.rotation.y = t + mouseX * 0.1;
+        points.rotation.x = mouseY * 0.05;
+        renderer.render(scene, camera);
+      }
+      render();
+    })();
+
+    // ── GSAP ScrollTrigger setup ──
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero entrance
+    const words = document.querySelectorAll('.hero-title .word');
+    const tl = gsap.timeline({ delay: 0.2 });
+    tl.to(words, { y: '0%', duration: 1, ease: 'expo.out', stagger: 0.08 })
+      .to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.5')
+      .to('.hero-sub', { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4')
+      .to('.hero-cta', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.4')
+      .to('.hero-scroll-hint', { opacity: 1, duration: 0.5 }, '-=0.2');
+
+    gsap.to('.scroll-line', {
+      scaleX: 0,
+      transformOrigin: 'left',
+      repeat: -1,
+      duration: 1.2,
+      ease: 'power2.inOut',
+      yoyo: true,
+    });
+
+    // Manifesto line reveal
+    const mLines = document.querySelectorAll('.m-line');
+    mLines.forEach((line, i) => {
+      ScrollTrigger.create({
+        trigger: line,
+        start: 'top 72%',
+        onEnter: () => line.classList.add('active'),
+        onLeaveBack: () => line.classList.remove('active'),
+      });
+    });
+
+    // Steps
+    gsap.utils.toArray('.step').forEach((el, i) => {
+      gsap.to(el, {
+        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: i * 0.12,
+        scrollTrigger: { trigger: el, start: 'top 80%' }
+      });
+    });
+
+    // Command cards
+    gsap.utils.toArray('.cmd-card').forEach((el, i) => {
+      gsap.to(el, {
+        opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: i * 0.08,
+        scrollTrigger: { trigger: el, start: 'top 82%' }
+      });
+    });
+
+    // ── Terminal typewriter demo ──
+    const tb = document.getElementById('terminal-body');
+    const lines = [
+      { delay: 0,    html: '<span class="dim">// watching clipboard...</span>' },
+      { delay: 1200, html: '<span class="prompt">CLIPBOARD ↓</span>' },
+      { delay: 1400, html: '<span class="trigger">?? Write a binary search in Python</span>' },
+      { delay: 2200, html: '<span class="dim">// trigger detected · sending to Gemini...</span>' },
+      { delay: 3400, html: '<span class="prompt">CLIPBOARD ↑</span>' },
+      { delay: 3600, html: '<span class="response">def binary_search(arr, target):</span>' },
+      { delay: 3700, html: '<span class="response">    lo, hi = 0, len(arr) - 1</span>' },
+      { delay: 3800, html: '<span class="response">    while lo &lt;= hi:</span>' },
+      { delay: 3900, html: '<span class="response">        mid = (lo + hi) // 2</span>' },
+      { delay: 4000, html: '<span class="response">        if arr[mid] == target: return mid</span>' },
+      { delay: 4100, html: '<span class="response">        elif arr[mid] &lt; target: lo = mid + 1</span>' },
+      { delay: 4200, html: '<span class="response">        else: hi = mid - 1</span>' },
+      { delay: 4300, html: '<span class="response">    return -1</span>' },
+      { delay: 4700, html: '<span class="dim">// ready · paste anywhere</span>' },
+    ];
+
+    let demoStarted = false;
+    ScrollTrigger.create({
+      trigger: '#terminal',
+      start: 'top 70%',
+      onEnter: () => {
+        if (demoStarted) return;
+        demoStarted = true;
+        tb.innerHTML = '';
+        lines.forEach(({ delay, html }) => {
+          setTimeout(() => {
+            const d = document.createElement('div');
+            d.className = 't-line';
+            d.innerHTML = html;
+            d.style.opacity = '0';
+            d.style.transform = 'translateY(4px)';
+            tb.appendChild(d);
+            gsap.to(d, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+            tb.scrollTop = tb.scrollHeight;
+          }, delay);
+        });
+      }
+    });
+
+    // ── Tabs ──
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ── Copy buttons ──
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        navigator.clipboard.writeText(btn.dataset.copy.replace(/&#10;/g, '\n')).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(() => btn.textContent = orig, 1500);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
