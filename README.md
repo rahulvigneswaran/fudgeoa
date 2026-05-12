@@ -37,8 +37,8 @@ Get a free API key at [aistudio.google.com/apikey](https://aistudio.google.com/a
 | `?? <question>` | Fresh answer, no history |
 | `??NEW?? <question>` | Explicitly new conversation |
 | `??FOLLOW?? <question>` | Continue previous conversation |
-| `??MODEL_1??` | Switch to Gemini 2.5 Flash (fast) |
-| `??MODEL_2??` | Switch to Gemini 2.5 Pro (deep) |
+| `??MODEL_1??` | Switch to Gemini 3.1 Flash Lite (fast) |
+| `??MODEL_2??` | Switch to Gemini 3.1 Pro Preview (deep) |
 
 ---
 

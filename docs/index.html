@@ -1001,7 +1001,7 @@
           <div class="cmd-item"><code>?? question</code><span>New answer, no context</span></div>
           <div class="cmd-item"><code>??NEW?? q</code><span>Explicitly fresh conversation</span></div>
           <div class="cmd-item"><code>??FOLLOW?? q</code><span>Continue with full history</span></div>
-          <div class="cmd-item"><code>??MODEL_2??</code><span>Upgrade to Gemini Pro</span></div>
+          <div class="cmd-item"><code>??MODEL_2??</code><span>Upgrade to Gemini 3.1 Pro</span></div>
         </div>
       </div>
       <div class="terminal" id="terminal">
@@ -1041,11 +1041,11 @@
       </div>
       <div class="cmd-card">
         <div class="cmd-card-trigger">??MODEL_1??</div>
-        <div class="cmd-card-desc">Switch to Gemini 2.5 Flash — faster responses, lower latency. Great for quick lookups and syntax questions.</div>
+        <div class="cmd-card-desc">Switch to Gemini 3.1 Flash Lite — faster responses, lower latency. Great for quick lookups and syntax questions.</div>
       </div>
       <div class="cmd-card" style="grid-column: span 1;">
         <div class="cmd-card-trigger">??MODEL_2??</div>
-        <div class="cmd-card-desc">Switch to Gemini 2.5 Pro — deeper reasoning, more thorough solutions. Use for complex algorithmic problems.</div>
+        <div class="cmd-card-desc">Switch to Gemini 3.1 Pro Preview — deeper reasoning, more thorough solutions. Use for complex algorithmic problems.</div>
       </div>
     </div>
   </section>
@@ -1076,7 +1076,7 @@
       </div>
       <div class="limit-card" style="background:var(--bg2);padding:40px;border-left:2px solid #2a2a2a;">
         <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey-light);margin-bottom:16px;">Network latency</div>
-        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">Gemini round-trips add 1–4 seconds. On timed-per-question OAs, this could eat into your budget. Use <code style="font-family:var(--mono);color:var(--white);font-size:12px">??MODEL_1??</code> (Flash) for speed over depth.</p>
+        <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--grey-light);">Gemini round-trips add 1–4 seconds. On timed-per-question OAs, this could eat into your budget. Use <code style="font-family:var(--mono);color:var(--white);font-size:12px">??MODEL_1??</code> (Flash Lite) for speed over depth.</p>
       </div>
     </div>
   </section>
@@ -1423,7 +1423,7 @@
       spinEl.className = 'spinner-char';
       const spinText = document.createElement('span');
       spinText.className = 'dim';
-      spinText.textContent = ' querying Gemini 2.5 Flash...';
+      spinText.textContent = ' querying Gemini 3.1 Flash Lite...';
       spinLine.append(spinEl, spinText);
       const frames = ['⠋','⠙','⠸','⠴','⠦','⠇'];
       let fi = 0;
