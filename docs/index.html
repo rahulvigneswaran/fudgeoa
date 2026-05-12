@@ -272,6 +272,79 @@
       line-height: 1;
     }
 
+    /* ── Pipeline ── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 80px;
+      padding: 32px 0;
+      gap: 0;
+      overflow-x: auto;
+    }
+    .pipe-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    .pipe-node-box {
+      width: 68px;
+      height: 68px;
+      border: 1px solid #232323;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      transition: border-color 0.4s, box-shadow 0.4s;
+      font-size: 22px;
+    }
+    .pipe-node.lit .pipe-node-box {
+      border-color: var(--red);
+      box-shadow: 0 0 24px rgba(232,19,42,0.18);
+    }
+    .pipe-node-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--grey);
+      text-align: center;
+      max-width: 72px;
+      line-height: 1.4;
+    }
+    .pipe-node.lit .pipe-node-label { color: var(--white); }
+    .pipe-connector {
+      width: 56px;
+      height: 1px;
+      background: #1c1c1c;
+      flex-shrink: 0;
+      position: relative;
+      margin-bottom: 28px;
+    }
+    .pipe-connector::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: -3px;
+      width: 0; height: 0;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 5px solid #2a2a2a;
+    }
+    .pipe-traveler {
+      position: absolute;
+      top: -3px; left: 0;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 8px rgba(232,19,42,0.8);
+      opacity: 0;
+    }
+
+    /* ── Steps ── */
     .steps {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -279,29 +352,164 @@
     }
     .step {
       background: var(--bg);
-      padding: 48px 40px;
+      padding: 40px 36px 48px;
       border-top: 1px solid #1a1a1a;
       opacity: 0;
       transform: translateY(40px);
     }
-    .step-num {
-      font-family: var(--display);
-      font-size: 64px;
-      color: #1a1a1a;
-      line-height: 1;
-      margin-bottom: 24px;
-    }
     .step-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 500;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       color: var(--white);
     }
     .step-desc {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 300;
-      line-height: 1.7;
+      line-height: 1.75;
       color: var(--grey-light);
+    }
+
+    /* ── Step viz container ── */
+    .step-viz {
+      height: 152px;
+      margin-bottom: 32px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Viz 1 — Copy */
+    .viz-copy { flex-direction: column; align-items: flex-start; gap: 14px; padding: 0 8px; }
+    .doc-mock {
+      width: 148px;
+      background: #0e0e0e;
+      border: 1px solid #1e1e1e;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .doc-line {
+      height: 4px;
+      border-radius: 2px;
+      background: #252525;
+    }
+    .doc-line:nth-child(1) { width: 90%; }
+    .doc-line:nth-child(2) { width: 78%; background: rgba(232,19,42,0.18); }
+    .doc-line:nth-child(3) { width: 55%; background: rgba(232,19,42,0.18); }
+    .doc-line:nth-child(4) { width: 72%; }
+    .sel-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(232,19,42,0.35);
+      transform: scaleX(0);
+      transform-origin: left;
+      border-radius: 2px;
+    }
+    .step.is-viz .sel-overlay { animation: sel-sweep 0.5s ease-out 0.4s forwards; }
+    @keyframes sel-sweep { to { transform: scaleX(1); } }
+    .copy-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--red);
+      border: 1px solid rgba(232,19,42,0.3);
+      padding: 4px 12px;
+      opacity: 0;
+      transform: translateX(-6px);
+      align-self: flex-start;
+    }
+    .step.is-viz .copy-badge { animation: badge-in 0.35s ease-out 1s forwards; }
+    @keyframes badge-in { to { opacity: 1; transform: translateX(0); } }
+
+    /* Viz 2 — Agent radar */
+    .radar-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .radar-ring {
+      position: absolute;
+      border: 1px solid var(--red);
+      border-radius: 50%;
+      opacity: 0;
+    }
+    .step.is-viz .radar-ring { animation: radar-pulse 2.8s ease-out infinite; }
+    .radar-ring:nth-child(1) { width: 36px;  height: 36px;  animation-delay: 0s   !important; }
+    .radar-ring:nth-child(2) { width: 68px;  height: 68px;  animation-delay: 0.7s !important; }
+    .radar-ring:nth-child(3) { width: 106px; height: 106px; animation-delay: 1.4s !important; }
+    @keyframes radar-pulse {
+      0%   { transform: scale(0.6); opacity: 0.7; }
+      100% { transform: scale(1);   opacity: 0; }
+    }
+    .radar-core {
+      width: 32px; height: 32px;
+      border: 1px solid var(--red);
+      background: rgba(232,19,42,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--red);
+      position: relative;
+      z-index: 2;
+    }
+    .stealth-tag {
+      position: absolute;
+      bottom: 4px; left: 0; right: 0;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 8px;
+      color: #333;
+      letter-spacing: 0.04em;
+    }
+
+    /* Viz 3 — Answer stream */
+    .answer-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 7px;
+      width: 148px;
+    }
+    .stream-line {
+      height: 4px;
+      border-radius: 2px;
+      background: #7ec8a0;
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    .stream-line:nth-child(1) { width: 88%; }
+    .stream-line:nth-child(2) { width: 70%; }
+    .stream-line:nth-child(3) { width: 55%; }
+    .stream-line:nth-child(4) { width: 78%; }
+    .stream-line:nth-child(5) { width: 45%; }
+    .step.is-viz .stream-line:nth-child(1) { animation: stream-in 0.3s ease-out 0.15s forwards; }
+    .step.is-viz .stream-line:nth-child(2) { animation: stream-in 0.3s ease-out 0.32s forwards; }
+    .step.is-viz .stream-line:nth-child(3) { animation: stream-in 0.3s ease-out 0.49s forwards; }
+    .step.is-viz .stream-line:nth-child(4) { animation: stream-in 0.3s ease-out 0.66s forwards; }
+    .step.is-viz .stream-line:nth-child(5) { animation: stream-in 0.3s ease-out 0.83s forwards; }
+    @keyframes stream-in { to { opacity: 1; transform: translateX(0); } }
+    .clip-icon-wrap {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+    }
+    .step.is-viz .clip-icon-wrap { animation: badge-in 0.3s ease-out 1.1s forwards; }
+    .clip-dot { width: 6px; height: 6px; border-radius: 50%; background: #7ec8a0; }
+    .clip-ready {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #7ec8a0;
+      letter-spacing: 0.1em;
     }
 
     /* ── Terminal demo ── */
@@ -700,21 +908,83 @@
       <span class="section-num">01</span>
       <h2 class="section-title">How it works</h2>
     </div>
+
+    <!-- Pipeline diagram -->
+    <div class="pipeline" id="pipeline">
+      <div class="pipe-node" id="pn0">
+        <div class="pipe-node-box">🖥</div>
+        <div class="pipe-node-label">OA Portal</div>
+      </div>
+      <div class="pipe-connector"><div class="pipe-traveler" id="pt0"></div></div>
+      <div class="pipe-node" id="pn1">
+        <div class="pipe-node-box" style="font-family:var(--mono);font-size:14px;color:var(--red)">??</div>
+        <div class="pipe-node-label">Copy +<br/>prefix</div>
+      </div>
+      <div class="pipe-connector"><div class="pipe-traveler" id="pt1"></div></div>
+      <div class="pipe-node" id="pn2">
+        <div class="pipe-node-box" style="font-family:var(--mono);font-size:11px;color:#555">⚙</div>
+        <div class="pipe-node-label">Agent<br/>(hidden)</div>
+      </div>
+      <div class="pipe-connector"><div class="pipe-traveler" id="pt2"></div></div>
+      <div class="pipe-node" id="pn3">
+        <div class="pipe-node-box">✦</div>
+        <div class="pipe-node-label">Gemini<br/>3.1</div>
+      </div>
+      <div class="pipe-connector"><div class="pipe-traveler" id="pt3"></div></div>
+      <div class="pipe-node" id="pn4">
+        <div class="pipe-node-box" style="font-family:var(--mono);font-size:11px;color:#7ec8a0">✓</div>
+        <div class="pipe-node-label">Answer<br/>in clipboard</div>
+      </div>
+    </div>
+
+    <!-- Step cards -->
     <div class="steps">
       <div class="step">
-        <div class="step-num">01</div>
+        <div class="step-viz viz-copy">
+          <div style="position:relative">
+            <div class="doc-mock">
+              <div class="doc-line"></div>
+              <div class="doc-line" style="position:relative"><div class="sel-overlay"></div></div>
+              <div class="doc-line" style="position:relative"><div class="sel-overlay"></div></div>
+              <div class="doc-line"></div>
+            </div>
+          </div>
+          <div class="copy-badge">?? prefix + Cmd+C</div>
+        </div>
         <h3 class="step-title">Copy the question</h3>
-        <p class="step-desc">Highlight any text from the OA portal. Prefix it with <code style="font-family:var(--mono);color:var(--red)">??</code> and copy it to your clipboard. That's your trigger.</p>
+        <p class="step-desc">Highlight any text from the OA portal. Prefix it with <code style="font-family:var(--mono);color:var(--red);font-size:11px">??</code> and copy to clipboard. That's your trigger.</p>
       </div>
+
       <div class="step">
-        <div class="step-num">02</div>
+        <div class="step-viz" style="flex-direction:column;gap:0">
+          <div class="radar-wrap">
+            <div class="radar-ring"></div>
+            <div class="radar-ring"></div>
+            <div class="radar-ring"></div>
+            <div class="radar-core">⚙</div>
+          </div>
+          <div class="stealth-tag">com.apple.security.pboxd</div>
+        </div>
         <h3 class="step-title">Agent intercepts</h3>
-        <p class="step-desc">The background process detects the trigger prefix instantly. It sends your prompt to Gemini — the most capable model, running silently under a disguised process name.</p>
+        <p class="step-desc">Background process detects the <code style="font-family:var(--mono);color:var(--red);font-size:11px">??</code> prefix instantly. Sends your prompt to Gemini 3.1, masked as an Apple system service.</p>
       </div>
+
       <div class="step">
-        <div class="step-num">03</div>
+        <div class="step-viz" style="flex-direction:column;gap:8px;align-items:flex-start;padding:0 16px">
+          <div class="answer-wrap">
+            <div class="stream-line"></div>
+            <div class="stream-line"></div>
+            <div class="stream-line"></div>
+            <div class="stream-line"></div>
+            <div class="stream-line"></div>
+          </div>
+          <div class="clip-icon-wrap">
+            <div class="clip-dot"></div>
+            <span class="clip-ready">ready · paste anywhere</span>
+          </div>
+        </div>
         <h3 class="step-title">Answer in clipboard</h3>
-        <p class="step-desc">Within seconds the AI response replaces your clipboard content. Paste it anywhere. Zero UI. Zero visible windows. Nobody knows it's running.</p>
+        <p class="step-desc">Within seconds the AI response replaces your clipboard. Paste it anywhere. Zero UI, zero visible windows. Nobody knows it's running.</p>
       </div>
     </div>
   </section>
@@ -815,17 +1085,36 @@
 
   <!-- ──────────────────── DOWNLOAD ──────────────────── -->
   <section id="download">
-    <p class="download-eyebrow">// macOS · Apple Silicon</p>
+    <p class="download-eyebrow">// pick your poison</p>
     <h2 class="download-title">Get<br/>the tool</h2>
-    <div class="download-meta">
-      <div class="meta-badge">Platform <span>macOS arm64</span></div>
-      <div class="meta-badge">Runtime <span>Standalone</span></div>
-      <div class="meta-badge">Visibility <span>Zero UI</span></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;max-width:800px;margin:0 auto 48px;text-align:left;">
+      <!-- Binary -->
+      <div style="background:var(--bg2);padding:40px;border-top:2px solid var(--red);">
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:20px;">Compiled binary</div>
+        <p style="font-size:13px;font-weight:300;color:var(--grey-light);line-height:1.7;margin-bottom:28px;">Single executable. No Python, no dependencies. Download and run.</p>
+        <div style="margin-bottom:20px;">
+          <div class="meta-badge" style="display:inline-block;margin-bottom:8px;">macOS <span>arm64</span></div><br/>
+          <div class="meta-badge" style="display:inline-block;margin-bottom:8px;">Size <span>7.5 MB</span></div><br/>
+          <div class="meta-badge" style="display:inline-block;">Gemini <span>3.1</span></div>
+        </div>
+        <a href="dist/CoreServicesHelper" download class="btn-download" style="display:inline-block;padding:14px 28px;font-size:12px;">↓ CoreServicesHelper</a>
+        <p style="font-family:var(--mono);font-size:9px;color:#333;margin-top:12px;word-break:break-all;letter-spacing:.03em;">SHA256: b500160bf6fee86dc0c4ea641a17e2f8782508e1cdd3f1f19f8aa68fcc056882</p>
+      </div>
+
+      <!-- Python -->
+      <div style="background:var(--bg2);padding:40px;border-top:2px solid #2a2a2a;">
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey-light);margin-bottom:20px;">Python source</div>
+        <p style="font-size:13px;font-weight:300;color:var(--grey-light);line-height:1.7;margin-bottom:28px;">Single Python file. Requires Python 3.11+ and pip install. Works on any platform.</p>
+        <div style="margin-bottom:20px;">
+          <div class="meta-badge" style="display:inline-block;margin-bottom:8px;">Platform <span>Any</span></div><br/>
+          <div class="meta-badge" style="display:inline-block;margin-bottom:8px;">Size <span>~4 KB</span></div><br/>
+          <div class="meta-badge" style="display:inline-block;">Python <span>3.11+</span></div>
+        </div>
+        <a href="https://raw.githubusercontent.com/rahulvigneswaran/fudgeoa/main/src/main.py" download="main.py" class="btn-download" style="display:inline-block;padding:14px 28px;font-size:12px;background:#1a1a1a;border:1px solid #2a2a2a;">↓ main.py</a>
+        <p style="font-family:var(--mono);font-size:9px;color:#333;margin-top:12px;letter-spacing:.05em;">pip install google-genai pyperclip setproctitle</p>
+      </div>
     </div>
-    <div class="download-btn-wrap">
-      <a href="https://github.com/rahulvigneswaran/fudgeoa/releases/latest/download/CoreServicesHelper" download class="btn-download">Download CoreServicesHelper</a>
-    </div>
-    <p class="download-note">~36 MB · No installation required · macOS 12+</p>
   </section>
 
   <div class="divider"></div>
@@ -1041,11 +1330,41 @@
       });
     });
 
-    // Steps
+    // Pipeline entrance + sequential node lighting
+    ScrollTrigger.create({
+      trigger: '#pipeline',
+      start: 'top 78%',
+      onEnter: () => {
+        const nodes = gsap.utils.toArray('.pipe-node');
+        const travelers = gsap.utils.toArray('.pipe-traveler');
+
+        // Fade nodes in
+        gsap.to(nodes, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.14 });
+
+        // Light up nodes one by one, then send a traveler dot along each connector
+        nodes.forEach((node, i) => {
+          gsap.delayedCall(0.14 * i + 0.3, () => node.classList.add('lit'));
+          if (travelers[i]) {
+            gsap.delayedCall(0.14 * i + 0.5, () => {
+              gsap.fromTo(travelers[i],
+                { left: 0, opacity: 1 },
+                { left: '100%', opacity: 0, duration: 0.45, ease: 'power1.inOut' }
+              );
+            });
+          }
+        });
+      }
+    });
+
+    // Steps — fade in + trigger viz animations
     gsap.utils.toArray('.step').forEach((el, i) => {
       gsap.to(el, {
         opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: i * 0.12,
-        scrollTrigger: { trigger: el, start: 'top 80%' }
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 80%',
+          onEnter: () => el.classList.add('is-viz'),
+        }
       });
     });
 

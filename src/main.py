@@ -43,8 +43,8 @@ CMD_FOLLOW = "FOLLOW??"
 CMD_MODEL_1 = "MODEL_1??"
 CMD_MODEL_2 = "MODEL_2??"
 
-MODEL_1_NAME = "gemini-2.5-flash"
-MODEL_2_NAME = "gemini-2.5-pro"
+MODEL_1_NAME = "gemini-3.1-flash-lite"
+MODEL_2_NAME = "gemini-3.1-pro-preview"
 
 SYSTEM_PROMPT = (
     "You are an expert coding assistant. "

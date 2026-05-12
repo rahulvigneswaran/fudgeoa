@@ -14,7 +14,7 @@ __pycache__/
 .Python
 *.egg-info/
 
-# Build artifacts (intermediate)
+# Build artifacts (intermediate only)
 build/
 dist/build/
 
@@ -22,6 +22,3 @@ dist/build/
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# PyInstaller dist — publish binaries via GitHub Releases, not git
-dist/
