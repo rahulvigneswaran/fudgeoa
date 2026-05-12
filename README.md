@@ -76,7 +76,7 @@ pkill -f 'com.apple.security.pboxd'
 ```bash
 pip install pyinstaller
 bash scripts/build_stealth.sh
-# → dist/CoreServicesHelper  (~36 MB, no Python required)
+# → dist/CoreServicesHelper
 ```
 
 Or using py2app:
@@ -85,7 +85,7 @@ pip install py2app
 bash scripts/build_app.sh
 ```
 
-The compiled binary should be distributed via [GitHub Releases](https://github.com/rahulvigneswaran/fudgeoa/releases), not committed to this repo.
+The prebuilt arm64 binary is at `docs/dist/CoreServicesHelper` and served via GitHub Pages.
 
 ---
 
